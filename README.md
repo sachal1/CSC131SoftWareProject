@@ -9,5 +9,6 @@ Sprint 2 retrospective:
 OMDb: c37e6c14
 
 # Meetings:
-Mon Oct 3  
-Wed Oct 12  
+Mon Oct 3 (in-person)  
+Wed Oct 12 (in-person)  
+Friday Oct 14 (Discord)  
