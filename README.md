@@ -9,9 +9,9 @@ Determine tech stack X
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Sprint 2
 October 10th, 2022- October 24
-# Set up web server. 
-# Hello world rest interaction.
-# Set up database
+Set up web server. 
+Hello world rest interaction.
+Set up database
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Sprint 3
 October 24th, 2022 -November 7th, 2022
