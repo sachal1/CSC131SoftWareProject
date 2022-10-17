@@ -44,3 +44,4 @@ OMDb: c37e6c14
 Mon Oct 3 (in-person)  
 Wed Oct 12 (in-person)  
 Friday Oct 14 (Discord)  
+Monday Oct 17 (in-person). 
