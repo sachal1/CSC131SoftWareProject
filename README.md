@@ -30,9 +30,10 @@ Finishing polish and error handling
 Construct presentation and demonstration
 *Extended into finals week
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
 # Documentations
+-- Vs2022 Development setup doc https://docs.google.com/document/d/1YFt6HxCTH1qNFkijwrXXpsNepYabu82T1oP2Y2o14uQ/edit?usp=sharing
+
+
 Sprint 2 planning:  https://docs.google.com/document/d/1E8gyi9L-xzophmdLvjZlVpc0iNkg37kn2UIkFPD4ZSg/edit?usp=sharing
 
 Sprint 2 retrospective:  
