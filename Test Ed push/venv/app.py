@@ -1,6 +1,8 @@
-#Test for add, commit and push
+# Test for add, commit and push
 from flask import Flask
+
 app = Flask(__name__)
+
 
 @app.route('/')
 def welcome():
