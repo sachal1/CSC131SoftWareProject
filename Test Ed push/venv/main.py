@@ -1,21 +1,22 @@
-import pymysql
 from app import app
 from config import mysql
 from flask import jsonify
 from flask import flash, request
+from flask import flash, jsonify, request
 import requests
+import pymysql
 
 HOST = "127.0.0.1"
 PORT = 8080
 OMDB_API_KEY = "c37e6c14"
 
 
-@app.route("/hello-world")
+@app.get("/hello-world")
 def hello_world():
     return "Hello, World!"
 
 
-@app.route("/api/v1/search")
+@app.get("/search")
 def get_movie_from_omdb():
     omdb_url = f"https://www.omdbapi.com/?apikey={OMDB_API_KEY}"
     if "title" and "year" in request.args:
@@ -25,8 +26,8 @@ def get_movie_from_omdb():
     return response
 
 
-@app.post('/api/v1/create')
-def create_emp():
+@app.post('/create')
+def create_movie():
     try:        
         _json = request.json
         _title = _json['title']
@@ -36,7 +37,7 @@ def create_emp():
         if _title and _year and _director and _language and request.method == 'POST':
             conn = mysql.connect()
             cursor = conn.cursor(pymysql.cursors.DictCursor)		
-            sqlQuery = "INSERT INTO emp(title, year, director, language) VALUES(%s, %s, %s, %s)"
+            sqlQuery = "INSERT INTO database(title, year, director, language) VALUES(%s, %s, %s, %s)"
             bindData = (_title, _year, _director, _language)            
             cursor.execute(sqlQuery, bindData)
             conn.commit()
@@ -52,12 +53,12 @@ def create_emp():
         conn.close()          
 
 
-@app.route('/emp')
+@app.route('/movie')
 def emp():
     try:
         conn = mysql.connect()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT id, title, year, director, language FROM emp")
+        cursor.execute("SELECT id, title, year, director, language FROM movie")
         empRows = cursor.fetchall()
         respone = jsonify(empRows)
         respone.status_code = 200
@@ -69,12 +70,12 @@ def emp():
         conn.close() 
 
 
-@app.route('/emp/')
-def emp_details(emp_id):
+@app.route('/movie/')
+def movie_details(movie_id):
     try:
         conn = mysql.connect()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT id, title, year, director, language FROM emp WHERE id =%s", emp_id)
+        cursor.execute("SELECT id, title, year, director, language FROM movie WHERE id =%s", movie_id)
         empRow = cursor.fetchone()
         respone = jsonify(empRow)
         respone.status_code = 200
@@ -87,7 +88,7 @@ def emp_details(emp_id):
 
 
 @app.put('/update')
-def update_emp():
+def update_movie():
     try:
         _json = request.json
         _id = _json['id']
@@ -96,7 +97,7 @@ def update_emp():
         _director = _json['director']
         _language = _json['language']
         if _title and _year and _director and _language and _id and request.method == 'PUT':			
-            sqlQuery = "UPDATE emp SET title=%s, year=%s, director=%s, language=%s WHERE id=%s"
+            sqlQuery = "UPDATE Movie SET title=%s, year=%s, director=%s, language=%s WHERE id=%s"
             bindData = (_title, _year, _director, _language, _id,)
             conn = mysql.connect()
             cursor = conn.cursor()
@@ -115,11 +116,11 @@ def update_emp():
         
 
 @app.delete('/delete/')
-def delete_emp(id):
+def delete_movie(id):
 	try:
 		conn = mysql.connect()
 		cursor = conn.cursor()
-		cursor.execute("DELETE FROM emp WHERE id =%s", (id,))
+		cursor.execute("DELETE FROM movie WHERE id =%s", (id,))
 		conn.commit()
 		respone = jsonify('Movie deleted successfully!')
 		respone.status_code = 200
