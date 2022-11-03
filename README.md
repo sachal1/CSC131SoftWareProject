@@ -38,6 +38,10 @@ Sprint 2 planning:  https://docs.google.com/document/d/1E8gyi9L-xzophmdLvjZlVpc0
 
 Sprint 2 retrospective:  
 
+Sprint 3 planning:  https://docs.google.com/document/d/1qNLWL0T7UjVldPjuNts8d7pPyQ3SgsQ3jG-4Tkmim-M/edit
+
+Sprint 3 retrospective: https://docs.google.com/document/d/1hr-rI8HQpz1FQkzjR_z6JgG1FNh6T1hM/edit?usp=sharing&ouid=102500070643771551108&rtpof=true&sd=true
+
 # API keys:
 OMDb: c37e6c14
 
