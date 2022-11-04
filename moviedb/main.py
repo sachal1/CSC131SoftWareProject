@@ -14,18 +14,7 @@ def hello_world():
     return "Hello, World!"
 
 
-@app.route("/api/v1/search")
-def get_movie_from_omdb():
-    global response
-    omdb_url = f"https://www.omdbapi.com/?apikey={OMDB_API_KEY}"
-    if "title" and "year" in request.args:
-        response = requests.get(omdb_url + "&t=" + request.args["title"] + "&y=" + request.args["year"]).json()
-    elif "title" in request.args:
-        response = requests.get(omdb_url + "&t=" + request.args["title"]).json()
-    import_movie_from_omdb(response)
-    return response
-
-
+# This function take a json as parameter and add it to the movies table.
 def import_movie_from_omdb(response):
     _json = response
     _title = _json["Title"]
@@ -45,9 +34,41 @@ def import_movie_from_omdb(response):
     conn.commit()
     cursor.close()
     conn.close()
-    respone = jsonify('Test')
-    respone.status_code = 200
-    return respone
+    response = jsonify('Test')
+    response.status_code = 200
+    return response
+
+
+# This method checking if the movie is already exits in the database using imdbID as parameter
+def is_movie_exist_in_database(imdb_id):
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies WHERE imdb_id = %s", imdb_id)
+    movie_data = cursor.fetchone()
+    if movie_data is None:
+        return 0
+    else:
+        return jsonify(movie_data)
+
+
+# This method take movie title (and year) and parameter and return its data
+@app.route("/api/v1/search")
+def get_movie_from_omdb():
+    global response
+    omdb_url = f"https://www.omdbapi.com/?apikey={OMDB_API_KEY}"
+    if "title" and "year" in request.args:
+        response = requests.get(omdb_url + "&t=" + request.args["title"] + "&y=" + request.args["year"]).json()
+    elif "title" in request.args:
+        response = requests.get(omdb_url + "&t=" + request.args["title"]).json()
+    imdb_id = response["imdbID"]
+    movie_data = is_movie_exist_in_database(imdb_id)
+    # Need further implementation to checking if the imdbID is already in the database
+    if (movie_data == 0):
+        import_movie_from_omdb(response)
+    else:
+        return movie_data
+    return response
+
 
 @app.post("/api/v1/movies")
 def create_movie():
