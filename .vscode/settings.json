@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./sachalDB/venv/Lib/site-packages"
+    ]
+}
