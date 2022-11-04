@@ -26,11 +26,11 @@ mysql = MySQL(app)
 def hello_world():
     return "Hello, World!"
 
-@app.route('/form') # Login form sent via HTML to login to MYSQL 
+@app.route('/form') # connection tester - Login form sent via HTML to login to MYSQL 
 def form():
     return render_template('form.html')
 
-@app.route('/login', methods = ['POST', 'GET']) #
+@app.route('/login', methods = ['POST', 'GET']) # connection tester - Tester for info_table DB - works 
 def login():
     if request.method == 'GET':
         return "Login via the login Form"
@@ -43,6 +43,14 @@ def login():
         mysql.connection.commit()
         cursor.close()
         return f"Done!!"
+
+
+
+
+
+
+
+
 
 @app.route("/api/v1/search")
 def get_movie_from_omdb():
