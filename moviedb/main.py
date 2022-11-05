@@ -93,5 +93,21 @@ def create_movie():
         conn.close()
 
 
+# This method takes movie_id as parameter and delete the movie matched that id.
+@app.delete("/api/v1/movies/<int:movie_id>")
+def delete_movie(movie_id: int):
+    try:
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM movies WHERE id = %s", (movie_id))
+        conn.commit()
+        return {"success": f"Movie {movie_id} has been deleted from the database"}, 200
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+        conn.close()
+
+
 if __name__ == '__main__':
     app.run(host=HOST, port=PORT)
