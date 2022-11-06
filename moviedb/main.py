@@ -126,14 +126,16 @@ def delete_movie(movie_id: int):
         conn.close()
 
 
-@app.get("/api/v1/academy-awards/<year>")
-def get_academy_awards_nominees(year):
-    response = []
-    csv_file = csv.reader(open("csvs/the_oscar_award.csv", "r"), delimiter=",")
-    for row in csv_file:
-        if row[1] == year:
-            response.append(row)
-    return response
+@app.get("/api/v1/academy-awards/<int:year>")
+def get_academy_awards_nominees(year: int):
+    result = []
+    with open("csvs/the_oscar_award.csv") as f:
+        reader = csv.reader(f)
+        header = next(reader)
+        for row in reader:
+            if int(row[1]) == year:
+                result.append(dict(zip(header, row)))
+    return json.dumps(result)
 
 
 if __name__ == '__main__':
