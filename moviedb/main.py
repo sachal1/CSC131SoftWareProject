@@ -1,6 +1,8 @@
 from app import app
 from config import mysql
+import csv
 import requests
+#import pandas
 import pymysql
 from flask import flash, json, jsonify, request
 
@@ -107,6 +109,17 @@ def delete_movie(movie_id: int):
     finally:
         cursor.close()
         conn.close()
+
+
+@app.get("/api/v1/academy-awards/<year>")
+def get_academy_awards_nominees(year):
+    response = []
+    csv_file = csv.reader(open("csvs/the_oscar_award.csv", "r"), delimiter=",")
+    for row in csv_file:
+        if row[1] == year:
+            response.append(row)
+    return response
+
 
 
 if __name__ == '__main__':
