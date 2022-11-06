@@ -2,7 +2,7 @@ from app import app
 from config import mysql
 import csv
 import requests
-#import pandas
+# import pandas
 import pymysql
 from flask import flash, json, jsonify, request
 
@@ -45,7 +45,7 @@ def import_movie_from_omdb(response):
 def is_movie_exist_in_database(imdb_id):
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies WHERE imdb_id = %s", imdb_id)
+    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies WHERE imdb_id = %s", imdb_id)
     movie_data = cursor.fetchone()
     if movie_data is None:
         return 0
@@ -65,11 +65,26 @@ def get_movie_from_omdb():
     imdb_id = response["imdbID"]
     movie_data = is_movie_exist_in_database(imdb_id)
     # Need further implementation to checking if the imdbID is already in the database
-    if (movie_data == 0):
+    if movie_data == 0:
         import_movie_from_omdb(response)
     else:
         return movie_data
     return response
+
+
+# This method take the movie_id as parameter, searching through MySQL and return data of matching movie
+@app.get("/api/v1/movies/<int:movie_id>")
+def get_movie_from_database(movie_id: int):
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies WHERE id = %s", movie_id)
+    movie_data = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    if movie_data is None:
+        return {"error": f"No movie found for ID {movie_id}"}, 404
+    else:
+        return movie_data, 200
 
 
 @app.post("/api/v1/movies")
@@ -101,7 +116,7 @@ def delete_movie(movie_id: int):
     try:
         conn = mysql.connect()
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM movies WHERE id = %s", (movie_id))
+        cursor.execute("DELETE FROM movies WHERE id = %s", movie_id)
         conn.commit()
         return {"success": f"Movie {movie_id} has been deleted from the database"}, 200
     except Exception as e:
@@ -119,7 +134,6 @@ def get_academy_awards_nominees(year):
         if row[1] == year:
             response.append(row)
     return response
-
 
 
 if __name__ == '__main__':
