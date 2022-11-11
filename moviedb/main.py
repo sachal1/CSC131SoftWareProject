@@ -9,6 +9,7 @@ from flask import flash, json, jsonify, request
 HOST = "127.0.0.1"
 PORT = 8080
 OMDB_API_KEY = "c37e6c14"
+omdb_url = f"https://www.omdbapi.com/?apikey={OMDB_API_KEY}"
 
 
 @app.route("/hello-world")
@@ -57,7 +58,7 @@ def is_movie_exist_in_database(imdb_id):
 @app.route("/api/v1/search")
 def get_movie_from_omdb():
     global response
-    omdb_url = f"https://www.omdbapi.com/?apikey={OMDB_API_KEY}"
+    #omdb_url = f"https://www.omdbapi.com/?apikey={OMDB_API_KEY}"
     if "title" and "year" in request.args:
         response = requests.get(omdb_url + "&t=" + request.args["title"] + "&y=" + request.args["year"]).json()
     elif "title" in request.args:
@@ -137,6 +138,17 @@ def get_academy_awards_nominees(year: int):
                 result.append(dict(zip(header, row)))
     return json.dumps(result)
 
+
+@app.get("/api/v1/academy-awards/best-picture/<int:year>")
+def get_academy_awards_best_picture_winner(year: int):
+    with open("csvs/the_oscar_award.csv") as f:
+        reader = csv.reader(f)
+        header = next(reader)
+        for row in reader:
+            if int(row[1]) == year and row[6] == "True" and (row[3] == "OUTSTANDING PICTURE" or row[3] == "BEST PICTURE"):
+                movie_title = row[5]
+    response = requests.get(omdb_url + "&t=" + movie_title).json()
+    return response
 
 if __name__ == '__main__':
     app.run(host=HOST, port=PORT)
