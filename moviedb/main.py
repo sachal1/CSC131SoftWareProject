@@ -127,6 +127,7 @@ def delete_movie(movie_id: int):
         conn.close()
 
 
+# This function will return all academy awards nominees
 @app.get("/api/v1/academy-awards/<int:year>")
 def get_academy_awards_nominees(year: int):
     result = []
@@ -139,7 +140,7 @@ def get_academy_awards_nominees(year: int):
     return json.dumps(result)
 
 
-@app.get("/api/v1/academy-awards/best-picture/<int:year>")
+@app.get("/api/v1/academy-awards/best-pictures/<int:year>")
 def get_academy_awards_best_picture_winner(year: int):
     with open("csvs/the_oscar_award.csv") as f:
         reader = csv.reader(f)
@@ -149,6 +150,19 @@ def get_academy_awards_best_picture_winner(year: int):
                 movie_title = row[5]
     response = requests.get(omdb_url + "&t=" + movie_title).json()
     return response
+
+
+@app.get("/api/v1/academy-awards/best-actors/<int:year>")
+def get_academy_awards_best_actor_winner(year: int):
+    with open("csvs/the_oscar_award.csv") as f:
+        reader = csv.reader(f)
+        header = next(reader)
+        for row in reader:
+            if int(row[1]) == year and row[6] == "True" and row[3] == "ACTOR":
+                movie_title = row[5]
+    response = requests.get(omdb_url + "&t=" + movie_title).json()
+    return response
+
 
 if __name__ == '__main__':
     app.run(host=HOST, port=PORT)
