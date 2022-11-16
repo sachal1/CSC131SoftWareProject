@@ -26,12 +26,9 @@ mysql = MySQL(app)
 def hello_world():
     return "Hello, World!"
 
-@app.route('/form') # connection tester - Login form sent via HTML to login to MYSQL 
-def form():
-    return render_template('form.html')
 
-@app.route('/login', methods = ['POST', 'GET']) # connection tester - Tester for info_table DB - works 
-def login():
+#@app.route('/login', methods = ['POST', 'GET']) # connection tester - Tester for info_table DB - works 
+#def login():
     if request.method == 'GET':
         return "Login via the login Form"
      
@@ -55,6 +52,29 @@ def create():
     cursor.close()
     return "table has been created"
 
+@app.route('/form') # connection tester - Login form sent via HTML to login to MYSQL 
+def form():
+    return render_template('movie.html')
+
+@app.route('/createmovie', methods = ['POST', 'GET']) # connection tester - Tester for info_table DB - works 
+def createmovie():
+
+    if request.method == 'GET':
+        return "Login via the login Form"
+     
+    if request.method == 'POST':                # Title 	Year 	Director 	Genre 	Actors 	Poster 	imdbID 	
+        Title = request.form['Title']
+        Year = request.form['Year']
+        Director = request.form['Director']
+        Genre = request.form['Genre']
+        Actors = request.form['Actors']
+        Poster = request.form['Poster']
+        imdbID = request.form['imdbID']
+        cursor = mysql.connection.cursor()
+        cursor.execute(''' INSERT INTO movietable VALUES(%s,%s,%s,%s,%s,%s,%s)''',(Title,Year,Director,Genre,Actors,Poster,imdbID))
+        mysql.connection.commit()
+        cursor.close()
+        return f"Done!!"        
 
 
 
