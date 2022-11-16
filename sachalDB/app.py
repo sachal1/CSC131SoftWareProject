@@ -16,7 +16,7 @@ OMDB_API_KEY = "c37e6c14"
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_PASSWORD'] = '123456'
 app.config['MYSQL_DB'] = 'flask'
  
 mysql = MySQL(app)
@@ -45,8 +45,15 @@ def login():
         return f"Done!!"
 
 
-
-
+# Creates a movie table in database "flask" called "movietable"
+@app.route("/create")
+def create():
+    cursor = mysql.connection.cursor()
+    query=("CREATE TABLE movietable (Title VARCHAR(255),Year VARCHAR(255), Director VARCHAR(255), Genre VARCHAR(255), Actors VARCHAR(255), Poster VARCHAR(255), imdbID VARCHAR(255))")
+    cursor.execute(query)
+    mysql.connection.commit()
+    cursor.close()
+    return "table has been created"
 
 
 
