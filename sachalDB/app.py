@@ -26,9 +26,21 @@ mysql = MySQL(app)
 def hello_world():
     return "Hello, World!"
 
+@app.route('/formtest') # connection tester - Login form sent via HTML to login to MYSQL 
+def formtest():
+    return render_template('form.html')
 
-#@app.route('/login', methods = ['POST', 'GET']) # connection tester - Tester for info_table DB - works 
-#def login():
+@app.route("/createtest")
+def createtest():
+    cursor = mysql.connection.cursor()
+    query=("CREATE TABLE testname (name VARCHAR(255),age VARCHAR(255))")
+    cursor.execute(query)
+    mysql.connection.commit()
+    cursor.close()
+    return "table has been created"    
+
+@app.route('/login', methods = ['POST', 'GET']) # connection tester - Tester for info_table DB - works 
+def login():
     if request.method == 'GET':
         return "Login via the login Form"
      
@@ -36,7 +48,7 @@ def hello_world():
         name = request.form['name']
         age = request.form['age']
         cursor = mysql.connection.cursor()
-        cursor.execute(''' INSERT INTO info_table VALUES(%s,%s)''',(name,age))
+        cursor.execute(''' INSERT INTO testname VALUES(%s,%s)''',(name,age))
         mysql.connection.commit()
         cursor.close()
         return f"Done!!"
@@ -52,12 +64,12 @@ def create():
     cursor.close()
     return "table has been created"
 
-@app.route('/form') # connection tester - Login form sent via HTML to login to MYSQL 
-def form():
+#@app.route('/form') # connection tester - Login form sent via HTML to login to MYSQL 
+#def form():
     return render_template('movie.html')
 
-@app.route('/createmovie', methods = ['POST', 'GET']) # connection tester - Tester for info_table DB - works 
-def createmovie():
+#@app.route('/createmovie', methods = ['POST', 'GET']) # connection tester - Tester for info_table DB - works 
+#def createmovie():
 
     if request.method == 'GET':
         return "Login via the login Form"
