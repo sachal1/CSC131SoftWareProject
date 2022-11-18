@@ -39,22 +39,40 @@ def login():
         name = request.form['name']
         age = request.form['age']
         cursor = mysql.connection.cursor()
-        cursor.execute(''' INSERT INTO info_table VALUES(%s,%s)''',(name,age))
+        cursor.execute(''' INSERT INTO info_table VALUES(%s,%s)''',(name,age)) # INSERT INTO - DB: flask > Table Name: info_table 
         mysql.connection.commit()
         cursor.close()
         return f"Done!!"
 
+@app.route("/")                     # sequence table endpoint used for auto incrementing through a db table and returning in numerical order from highest to lowest id (1,2,3 ....... ) DB: flask > Table Name: sequence 
+def index():
+    cursor = mysql.connection.cursor()
+    cursor.execute('''SELECT DATA FROM sequence WHERE id = 1''')
+    rv=cursor.fetchall()
+    return str(rv)
+
+@app.route('/increment/<string:insert>')
+def add(insert):
+    cursor = mysql.connection.cursor()
 
 
 
 
 
+@app.route('getall')       # GET Route returner tester for info_table test db 
+def getall():
+    cursor = mysql.connection.cursor()
+    cursor.execute('''SELECT * FROM `info_table`''')
+    returnvals = cursor.fetchall() # ((Name, Age ))
 
-
+    printthis= ""
+    for i in returnvals:
+        printthis += i + "<br>"
+    return printthis
 
 @app.route("/api/v1/search")
 def get_movie_from_omdb():
-    omdb_url = f"https://www.omdbapi.com/?apikey={OMDB_API_KEY}" # /api/v1/search?title=
+    omdb_url = f"https://www.omdbapi.com/?apikey={OMDB_API_KEY}" # /api/v1/search?title= <movie title here> returns all fields of data associated with OMDP APIS movie class  
     if "title" and "year" in request.args:
         response = requests.get(omdb_url + "&t=" + request.args["title"] + "&y=" + request.args["year"]).json()
     elif "title" in request.args:
