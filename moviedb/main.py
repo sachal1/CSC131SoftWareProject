@@ -120,7 +120,7 @@ def create_movie():
 
 @app.put("/api/v1/movies/<int:movie_id>")
 def update_movie_data_in_database(movie_id: int):
-
+    return 0
 
 # This method takes movie_id as parameter and delete the movie matched that id.
 @app.delete("/api/v1/movies/<int:movie_id>")
