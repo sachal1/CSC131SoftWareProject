@@ -84,6 +84,41 @@ def createmovie():
         cursor.close()
         return f"Done!!"                
 
+@app.get('/api/v1/movies')  # Returns all rows in table movies 
+def printresult():
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    query = "SELECT * FROM movies LIMIT 3 OFFSET 0"
+    cursor.execute(query)
+    results = cursor.fetchall()
+    for row in results:
+        print(results)
+        return results
+    cursor.close
+    conn.close    
+
+
+
+
+@app.get('/moviesuggestion')
+def suggestion():
+     conn = mysql.connect()
+     cursor = conn.cursor(pymysql.cursors.DictCursor)
+     query = " SELECT year,imdb_ID FROM movies LIMIT 3 OFFSET 0"          # Creates a copy of the original data table 
+     cursor.execute(query)
+     results = cursor.fetchall()
+     for row in results:
+        print(results)
+        return results
+
+
+
+
+     cursor.close
+     conn.close    
+
+
+
 # This function take a json as parameter and add it to the movies table.
 def import_movie_from_omdb(response):
     _json = response
@@ -155,7 +190,7 @@ def get_movie_from_database(movie_id: int):
         return movie_data, 200
 
 
-@app.post("/api/v1/movies")
+@app.post("/api/v1/movies") # POST method for api/v1/movies there is a GET method on line 87
 def create_movie():
     if request.is_json:
         _json = request.json
