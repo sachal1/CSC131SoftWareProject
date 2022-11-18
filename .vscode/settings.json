@@ -1,5 +1,6 @@
 {
     "python.analysis.extraPaths": [
-        "./sachalDB/venv/Lib/site-packages"
+        "./sachalDB/venv/Lib/site-packages",
+        "./moviedb"
     ]
 }
