@@ -100,11 +100,11 @@ def printresult():
 
 
 
-@app.get('/moviesuggestion')
+@app.get('/moviesuggestion')        # Suggest a movie in a unique way TODO
 def suggestion():
      conn = mysql.connect()
      cursor = conn.cursor(pymysql.cursors.DictCursor)
-     query = " SELECT year,imdb_ID FROM movies LIMIT 3 OFFSET 0"          # Creates a copy of the original data table 
+     query = " SELECT year,imdb_ID FROM movies LIMIT 3 OFFSET 0"          # Selects last 3 entries in movies table  
      cursor.execute(query)
      results = cursor.fetchall()
      for row in results:
