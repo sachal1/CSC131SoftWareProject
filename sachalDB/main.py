@@ -70,25 +70,29 @@ def createmovie():
     if request.method == 'GET':
         return "Login via the login Form"
      
-    if request.method == 'POST':                # Title 	Year 	Director 	Genre 	Actors 	Poster 	imdbID 	
+    if request.method == 'POST':                # Title 	Year 	Director 	Genre 	Actors Language awards Poster imdbID 	
         Title = request.form['Title']
         Year = request.form['Year']
         Director = request.form['Director']
         Genre = request.form['Genre']
         Actors = request.form['Actors']
+        Language = request.form['Language']
+        Awards = request.form['Awards']
         Poster = request.form['Poster']
         imdbID = request.form['imdbID']
-        cursor = mysql.connection.cursor()
-        cursor.execute(''' INSERT INTO movietable VALUES(%s,%s,%s,%s,%s,%s,%s)''',(Title,Year,Director,Genre,Actors,Poster,imdbID))
-        mysql.connection.commit()
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(''' INSERT INTO movies VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)''',(Title,Year,Director,Genre,Actors,Language,Awards,Poster,imdbID))
+        conn.commit()
         cursor.close()
+        conn.close()
         return f"Done!!"                
 
 @app.get('/api/v1/movies')  # Returns all rows in table movies 
 def printresult():
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    query = "SELECT * FROM movies LIMIT 3 OFFSET 0"
+    query = "SELECT * FROM movies LIMIT 5 OFFSET 0"
     cursor.execute(query)
     results = cursor.fetchall()
     for row in results:
