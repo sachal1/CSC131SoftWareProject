@@ -46,6 +46,10 @@ Sprint 4 planning: https://docs.google.com/document/d/146KUwAWkPFe5hc_gsW-4rYHrg
 
 Sprint 4 retrospective: https://docs.google.com/document/d/1lp5kCPCcj81X8RN5MWWpM5yxKLHIb9NB/edit?usp=sharing&ouid=102500070643771551108&rtpof=true&sd=true
 
+Sprint 5 planning: https://docs.google.com/document/d/1prlZs3zdyPSqDwyG81ts0C8ldAkC6v0B/edit?usp=sharing&ouid=102500070643771551108&rtpof=true&sd=true
+
+Sprint 5 retrospective: https://docs.google.com/document/d/1iEtaKCssqCLhqiOWXSZAar4GPxqJIMmf/edit?usp=sharing&ouid=102500070643771551108&rtpof=true&sd=true
+
 # API keys:
 OMDb: c37e6c14
 
