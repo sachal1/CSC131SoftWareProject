@@ -109,13 +109,16 @@ def get_movie_data_from_database(movie_id: int):
 @app.post("/api/v1/movies")
 def create_movie():
     if request.is_json:
-        if "imdbID" in request.json:
-            imdb_id = request.json.get("imdbID")
-            movie_data = is_imdb_id_existed_in_database(imdb_id)
-            if movie_data == 0:
-                return import_movie_from_json(get_movie_data_from_omdb_with_imdb_id(imdb_id))
-            else:
-                return {"error": f"movie with IMDb ({imdb_id}) already existed in the database"}, 200
+        #if "imdbID" in request.json:
+        #    imdb_id = request.json.get("imdbID")
+        #    movie_data = is_imdb_id_existed_in_database(imdb_id)
+        #    if movie_data == 0:
+        #        return import_movie_from_json(get_movie_data_from_omdb_with_imdb_id(imdb_id))
+        #    else:
+        #        return {"error": f"movie with IMDb ({imdb_id}) already existed in the database"}, 200
+        #else:
+        #    return import_movie_from_json(request.json)
+        return import_movie_from_json(request.json)
 
 
 @app.put("/api/v1/movies/<int:movie_id>")
