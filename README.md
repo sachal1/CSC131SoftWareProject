@@ -50,6 +50,8 @@ Sprint 5 planning: https://docs.google.com/document/d/1prlZs3zdyPSqDwyG81ts0C8ld
 
 Sprint 5 retrospective: https://docs.google.com/document/d/1iEtaKCssqCLhqiOWXSZAar4GPxqJIMmf/edit?usp=sharing&ouid=102500070643771551108&rtpof=true&sd=true
 
+RELEASE NOTES: https://docs.google.com/document/d/14RKsOFC9L82PqREGug9khGDWzZME_luP/edit?usp=sharing&ouid=102500070643771551108&rtpof=true&sd=true
+
 # API keys:
 OMDb: c37e6c14
 
