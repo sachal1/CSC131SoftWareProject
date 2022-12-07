@@ -29,7 +29,8 @@ def import_movie_from_json(original_movie_data):
     bind_data = (_title, _year, _directors, _genre, _actors, _language, _awards, _poster, _imdb_id)
     cursor.execute(sql_query, bind_data)
     conn.commit()
-    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies WHERE imdb_id = %s", _imdb_id)
+    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies "
+                   "WHERE imdb_id = %s", _imdb_id)
     movie_data = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -39,7 +40,8 @@ def import_movie_from_json(original_movie_data):
 def is_imdb_id_existed_in_database(imdb_id):
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies WHERE imdb_id = %s", imdb_id)
+    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies "
+                   "WHERE imdb_id = %s", imdb_id)
     movie_data = cursor.fetchone()
     if movie_data is None:
         return 0
@@ -50,7 +52,8 @@ def is_imdb_id_existed_in_database(imdb_id):
 def is_title_existed_in_database(title):
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies WHERE title = %s", title)
+    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies "
+                   "WHERE title = %s", title)
     movie_data = cursor.fetchone()
     if movie_data is None:
         return 0
@@ -70,10 +73,6 @@ def get_movie_data_from_omdb_with_imdb_id(imdb_id):
     return requests.get(OMDB_URL + "&i=" + imdb_id).json()
 
 
-def append_movie_data_to_a_json(movie_tile):
-    return 0
-
-
 @app.route("/api/v1/search")
 def search():
     if "title" in request.args:
@@ -88,13 +87,11 @@ def search():
         return {"error": "malformed request, no title parameter is found"}, 400
 
 
-
 @app.get("/api/v1/movies")
 def get_all_movies_data_from_database():
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    sql_query = "SELECT * FROM movies"
-    rows_count = cursor.execute(sql_query)
+    rows_count = cursor.execute("SELECT * FROM movies")
     if rows_count > 0:
         movies_data = cursor.fetchall()
     cursor.close()
@@ -108,26 +105,27 @@ def get_all_movies_data_from_database():
 def get_movie_data_from_database(movie_id: int):
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies WHERE id = %s", movie_id)
+    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies "
+                   "WHERE id = %s", movie_id)
     movie_data = cursor.fetchone()
     cursor.close()
     conn.close()
     if movie_data is None:
         return {"error": f"no movie found for id ({movie_id})"}, 404
-    return movie_data, 200
+    return jsonify(movie_data), 200
 
 
 @app.post("/api/v1/movies")
 def create_movie():
     if request.is_json:
-        #if "imdbID" in request.json:
+        # if "imdbID" in request.json:
         #    imdb_id = request.json.get("imdbID")
         #    movie_data = is_imdb_id_existed_in_database(imdb_id)
         #    if movie_data == 0:
         #        return import_movie_from_json(get_movie_data_from_omdb_with_imdb_id(imdb_id))
         #    else:
         #        return {"error": f"movie with IMDb ({imdb_id}) already existed in the database"}, 200
-        #else:
+        # else:
         #    return import_movie_from_json(request.json)
         return import_movie_from_json(request.json)
 
@@ -135,6 +133,7 @@ def create_movie():
 @app.put("/api/v1/movies/<int:movie_id>")
 def update_movie_data_in_database(movie_id: int):
     return 0
+
 
 # This method takes movie_id as parameter and delete the movie matched that id.
 @app.delete("/api/v1/movies/<int:movie_id>")
@@ -178,7 +177,8 @@ def get_academy_awards_best_picture_winner(year: int):
                     data["movie_data"] = movie_data
                 else:
                     data["movie_data"] = movie_data.json
-    return jsonify(data)
+                return jsonify(data)
+    return {"error": f"no data found for best picture in this year ({year})"}, 404
 
 
 @app.get("/api/v1/academy-awards/best-actors/<int:year>")
@@ -198,6 +198,8 @@ def get_academy_awards_best_actor_winner(year: int):
                 else:
                     data["movie_data"] = movie_data.json
                 result.append(data)
+    if not result:
+        return {"error": f"no data found for best actors in this year ({year})"}, 404
     return jsonify(result)
 
 
