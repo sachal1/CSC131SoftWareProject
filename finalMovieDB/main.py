@@ -132,7 +132,28 @@ def create_movie():
 
 @app.put("/api/v1/movies/<int:movie_id>")
 def update_movie_data_in_database(movie_id: int):
-    return 0
+    if request.is_json:
+        original_movie_data = get_movie_data_from_database(movie_id)
+        if "Title" in request.json or "Year" in request.json or "Director" in request.is_json or "Genre" in request.json or "Actors" in request.json or "Language" in request.json or "Awards" in request.json or "Poster" in request.json or "imdbID" in request.json:
+            movie_data = list(original_movie_data)
+            movie_data["title"] = request.json.get("Title") or movie_data["title"]
+            movie_data["year"] = request.json.get("Year") or movie_data["year"]
+            movie_data["directors"] = request.json.get("Director") or movie_data["directors"]
+            movie_data["genre"] = request.json.get("Genre") or movie_data["genre"]
+            movie_data["actors"] = request.json.get("Actors") or movie_data["actors"]
+            movie_data["language"] = request.json.get("Language") or movie_data["language"]
+            movie_data["awards"] = request.json.get("Awards") or movie_data["awards"]
+            movie_data["poster"] = request.json.get("Poster") or movie_data["poster"]
+            movie_data["imdb_id"] = request.json.get("imdbID") or movie_data["imdb_id"]
+            sql_query = "UPDATE movies SET title=%s, year=%s, directors=%s, genre=%s, actors=%s, language=%s, awards=%s, poster=%s, imdb_id=%s WHERE id=%s"
+            bind_data = (movie_data["title"], movie_data["year"], movie_data["directors"], movie_data["genre"], movie_data["actors"], movie_data["language"], movie_data["awards"], movie_data["poster"], movie_data["imdb_id"], movie_id)
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            cursor.execute(sql_query, bind_data)
+            conn.commit()
+        return movie_data
+    else:
+        return {"error": "request must be json"}, 415
 
 
 # This method takes movie_id as parameter and delete the movie matched that id.
@@ -159,7 +180,7 @@ def get_academy_awards_nominees(year: int):
                 result.append(dict(zip(header, row)))
     if not result:
         return {"error": f"no data found for this year ({year})"}, 404
-    return json.dumps(result)
+    return jsonify(result)
 
 
 @app.get("/api/v1/academy-awards/best-pictures/<int:year>")
