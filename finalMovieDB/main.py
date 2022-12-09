@@ -21,18 +21,19 @@ def import_movie_from_json(movie_data):
     awards = movie_data.get("Awards") or movie_data.get("awards") or "N/A"
     poster = movie_data.get("Poster") or movie_data.get("poster") or ""
     imdb_id = movie_data.get("imdbID") or movie_data.get("imdb_id") or ""
+    imdb_rating = movie_data.get("imdbRating") or movie_data.get("imdb_rating") or "0.0"
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    sql_query = "INSERT INTO movies(title, year, directors, genre, actors, language, awards, poster, imdb_id) VALUES(" \
-                "%s, %s, %s, %s, %s, %s, %s, %s, %s) "
-    bind_data = (title, year, directors, genre, actors, language, awards, poster, imdb_id)
+    sql_query = "INSERT INTO movies(title, year, directors, genre, actors, language, awards, poster, imdb_id, imdb_rating) VALUES(" \
+                "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+    bind_data = (title, year, directors, genre, actors, language, awards, poster, imdb_id, imdb_rating)
     cursor.execute(sql_query, bind_data)
     conn.commit()
     if imdb_id == "":
-        cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies "
+        cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id, imdb_rating FROM movies "
                        "WHERE title = %s", title)
     else:
-        cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies "
+        cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id, imdb_rating FROM movies "
                        "WHERE imdb_id = %s", imdb_id)
     movie_data = cursor.fetchone()
     cursor.close()
@@ -43,7 +44,7 @@ def import_movie_from_json(movie_data):
 def get_movie_data_from_database_with_imdb_id_helper(imdb_id):
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies "
+    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id, imdb_rating FROM movies "
                    "WHERE imdb_id = %s", imdb_id)
     movie_data = cursor.fetchone()
     return movie_data
@@ -52,7 +53,7 @@ def get_movie_data_from_database_with_imdb_id_helper(imdb_id):
 def get_movie_data_from_database_with_id_helper(movie_id: int):
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies "
+    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id, imdb_rating FROM movies "
                    "WHERE id = %s", movie_id)
     movie_data = cursor.fetchone()
     cursor.close()
@@ -63,7 +64,7 @@ def get_movie_data_from_database_with_id_helper(movie_id: int):
 def get_movie_data_from_database_with_title_helper(title):
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies "
+    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id, imdb_rating FROM movies "
                    "WHERE title = %s", title)
     movie_data = cursor.fetchone()
     cursor.close()
@@ -146,7 +147,7 @@ def update_movie_data_in_database(movie_id: int):
         original_movie_data = get_movie_data_from_database_with_id_helper(movie_id)
         if original_movie_data is None:
             return jsonify({"error": f"no movie found for id ({movie_id})"}), 404
-        if "Title" in request.json or "title" in request.json or "Year" in request.json or "year" in request.json or "Director" in request.is_json or "directors" in request.json or "Genre" in request.json or "genre" in request.json or "Actors" in request.json or "actors" in request.json or "Language" in request.json or "language" in request.json or "Awards" in request.json or "awards" in request.json or "Poster" in request.json or "poster" in request.json or "imdbID" in request.json or "imdb_id" in request.json:
+        if "Title" in request.json or "title" in request.json or "Year" in request.json or "year" in request.json or "Director" in request.is_json or "directors" in request.json or "Genre" in request.json or "genre" in request.json or "Actors" in request.json or "actors" in request.json or "Language" in request.json or "language" in request.json or "Awards" in request.json or "awards" in request.json or "Poster" in request.json or "poster" in request.json or "imdbID" in request.json or "imdb_id" in request.json or "imdbRating" in request.json or "imdb_rating" in request.json:
             movie_data = {}
             movie_data["title"] = request.json.get("Title") or request.json.get("title") or original_movie_data["title"]
             movie_data["year"] = request.json.get("Year") or request.json.get("year") or original_movie_data["year"]
@@ -157,8 +158,9 @@ def update_movie_data_in_database(movie_id: int):
             movie_data["awards"] = request.json.get("Awards") or request.json.get("awards") or original_movie_data["awards"]
             movie_data["poster"] = request.json.get("Poster") or request.json.get("poster") or original_movie_data["poster"]
             movie_data["imdb_id"] = request.json.get("imdbID") or request.json.get("imdb_id") or original_movie_data["imdb_id"]
-            sql_query = "UPDATE movies SET title=%s, year=%s, directors=%s, genre=%s, actors=%s, language=%s, awards=%s, poster=%s, imdb_id=%s WHERE id=%s"
-            bind_data = (movie_data["title"], movie_data["year"], movie_data["directors"], movie_data["genre"], movie_data["actors"], movie_data["language"], movie_data["awards"], movie_data["poster"], movie_data["imdb_id"], movie_id)
+            movie_data["imdb_rating"] = request.json.get("imdbRating") or request.json.get("imdb_rating") or original_movie_data["imdb_rating"]
+            sql_query = "UPDATE movies SET title=%s, year=%s, directors=%s, genre=%s, actors=%s, language=%s, awards=%s, poster=%s, imdb_id=%s, imdb_rating=%s WHERE id=%s"
+            bind_data = (movie_data["title"], movie_data["year"], movie_data["directors"], movie_data["genre"], movie_data["actors"], movie_data["language"], movie_data["awards"], movie_data["poster"], movie_data["imdb_id"], movie_data["imdb_rating"], movie_id)
             conn = mysql.connect()
             cursor = conn.cursor()
             cursor.execute(sql_query, bind_data)
