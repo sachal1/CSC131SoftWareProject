@@ -287,11 +287,14 @@ def get_recommended_movies():
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     most_common_genre = get_the_most_common_word_in_queries()
-    cursor.execute("SELECT * FROM movies WHERE genre LIKE %s ORDER BY imdb_rating DESC LIMIT 5", ("%" + most_common_genre + "%",))
-    movies_data = cursor.fetchall()
+    rows_count = cursor.execute("SELECT * FROM movies WHERE genre LIKE %s ORDER BY imdb_rating DESC LIMIT 5", ("%" + most_common_genre + "%",))
+    if rows_count > 0:
+        movies_data = cursor.fetchall()
     conn.commit()
     cursor.close()
     conn.close()
+    if rows_count == 0:
+        return {"error": "there is no movie to be recommended for now"}, 404
     return jsonify(movies_data)
 
 
