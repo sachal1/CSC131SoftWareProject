@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Movies</title>
+    </head>
+    <body>
+        <h1>Movies</h1>
+        <ul>
+            {% for movie in movie_data %}
+                <li>
+                    {{ movie.movie_id }}: {{ movie.title }} ({{ movie.year }})
+                    <ul>
+                        <li>Directors: {{ movie.directors }}</li>
+                        <li>Genre: {{ movie.genre }}</li>
+                        <li>Actors: {{ movie.actors }}</li>
+                        <li>Language: {{ movie.language }}</li>
+                        <li>Awards: {{ movie.awards }}</li>
+                        <li>IMDB ID: {{ movie.imdb_id }}</li>
+                        <li>IMDB Rating: {{ movie.imdb_rating }}</li>
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>

@@ -4,7 +4,7 @@ from collections import Counter
 import csv
 import requests
 import pymysql
-from flask import flash, json, jsonify, request
+from flask import flash, json, jsonify, request, render_template
 
 HOST = "127.0.0.1"
 PORT = 8080
@@ -296,6 +296,27 @@ def get_recommended_movies():
     if rows_count == 0:
         return {"error": "there is no movie to be recommended for now"}, 404
     return jsonify(movies_data)
+
+
+@app.get("/api/v1/movies/html") # This returns all movies in database as 
+def get_all_movies_data_from_databasehtml():
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    rows_count = cursor.execute("SELECT * FROM movies")  # change table name as neccesary also update html
+    if rows_count > 0:
+        movies_data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    if rows_count == 0:
+        return {"error": "there is no movie in the database"}, 404
+    return render_template('movies.html', movie_data=movies_data)
+
+
+
+
+
+
 
 
 if __name__ == '__main__':
