@@ -1,5 +1,6 @@
 from app import app
 from config import mysql
+from collections import Counter
 import csv
 import requests
 import pymysql
@@ -24,7 +25,7 @@ def import_movie_from_json(movie_data):
     imdb_rating = movie_data.get("imdbRating") or movie_data.get("imdb_rating") or "0.0"
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    sql_query = "INSERT INTO movies(title, year, directors, genre, actors, language, awards, poster, imdb_id, imdb_rating) VALUES(" \
+    sql_query = "INSERT INTO movies (title, year, directors, genre, actors, language, awards, poster, imdb_id, imdb_rating) VALUES(" \
                 "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
     bind_data = (title, year, directors, genre, actors, language, awards, poster, imdb_id, imdb_rating)
     cursor.execute(sql_query, bind_data)
@@ -84,6 +85,45 @@ def get_movie_data_from_omdb_with_imdb_id(imdb_id):
     return requests.get(OMDB_URL + "&i=" + imdb_id).json()
 
 
+def import_searched_movie_genre_to_queries(genre):
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    sql_query = "INSERT INTO queries (genre) VALUES (%s)"
+    cursor.execute(sql_query, genre)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+
+def get_the_most_common_word_in_queries():
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT * FROM queries ORDER BY id DESC LIMIT 5")
+    queries = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    genres = []
+    for query in queries:
+        genre_list = query["genre"].split(", ")
+        genres.extend(genre_list)
+    genre_counts = Counter(genres)
+    most_common_genre = genre_counts.most_common(1)
+    return most_common_genre[0][0]
+
+
+@app.route("/api/v1/academy-awards/best-pictures-import")
+def import_academy_awards_winners_to_database():
+    with open("csvs/the_oscar_award.csv") as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if row[6] == "True" and (row[3] == "OUTSTANDING PICTURE" or row[3] == "BEST PICTURE"):
+                movie_title = row[5]
+                movie_data = get_movie_data_from_database_with_title_helper(movie_title)
+                if movie_data is None:
+                    import_movie_from_json(get_movie_data_from_omdb_with_title(movie_title))
+    return {"success": "all academy awards winners were imported to the database"}, 200
+
+
 @app.route("/api/v1/search")
 def search():
     if "title" in request.args and request.args["title"] != "":
@@ -93,9 +133,12 @@ def search():
             imdb_id = imdb_movie_data["imdbID"]
             movie_data_with_imdb_id = get_movie_data_from_database_with_imdb_id_helper(imdb_id)
             if movie_data_with_imdb_id is None:
+                import_searched_movie_genre_to_queries(imdb_movie_data.get("Genre"))
                 return jsonify(import_movie_from_json(imdb_movie_data))
             else:
+                import_searched_movie_genre_to_queries(movie_data_with_imdb_id.get("genre"))
                 return jsonify(movie_data_with_imdb_id)
+        import_searched_movie_genre_to_queries(movie_data.get("genre"))
         return jsonify(movie_data)
     else:
         return jsonify({"error": "malformed request, no title parameter is found"}), 400
@@ -148,17 +191,18 @@ def update_movie_data_in_database(movie_id: int):
         if original_movie_data is None:
             return jsonify({"error": f"no movie found for id ({movie_id})"}), 404
         if "Title" in request.json or "title" in request.json or "Year" in request.json or "year" in request.json or "Director" in request.is_json or "directors" in request.json or "Genre" in request.json or "genre" in request.json or "Actors" in request.json or "actors" in request.json or "Language" in request.json or "language" in request.json or "Awards" in request.json or "awards" in request.json or "Poster" in request.json or "poster" in request.json or "imdbID" in request.json or "imdb_id" in request.json or "imdbRating" in request.json or "imdb_rating" in request.json:
-            movie_data = {}
-            movie_data["title"] = request.json.get("Title") or request.json.get("title") or original_movie_data["title"]
-            movie_data["year"] = request.json.get("Year") or request.json.get("year") or original_movie_data["year"]
-            movie_data["directors"] = request.json.get("Director") or request.json.get("directors") or original_movie_data["directors"]
-            movie_data["genre"] = request.json.get("Genre") or request.json.get("genre") or original_movie_data["genre"]
-            movie_data["actors"] = request.json.get("Actors") or request.json.get("actors") or original_movie_data["actors"]
-            movie_data["language"] = request.json.get("Language") or request.json.get("language") or original_movie_data["language"]
-            movie_data["awards"] = request.json.get("Awards") or request.json.get("awards") or original_movie_data["awards"]
-            movie_data["poster"] = request.json.get("Poster") or request.json.get("poster") or original_movie_data["poster"]
-            movie_data["imdb_id"] = request.json.get("imdbID") or request.json.get("imdb_id") or original_movie_data["imdb_id"]
-            movie_data["imdb_rating"] = request.json.get("imdbRating") or request.json.get("imdb_rating") or original_movie_data["imdb_rating"]
+            movie_data = {
+                "title": request.json.get("Title") or request.json.get("title") or original_movie_data["title"],
+                "year": request.json.get("Year") or request.json.get("year") or original_movie_data["year"],
+                "directors": request.json.get("Director") or request.json.get("directors") or original_movie_data["directors"],
+                "genre": request.json.get("Genre") or request.json.get("genre") or original_movie_data["genre"],
+                "actors": request.json.get("Actors") or request.json.get("actors") or original_movie_data["actors"],
+                "language": request.json.get("Language") or request.json.get("language") or original_movie_data["language"],
+                "awards": request.json.get("Awards") or request.json.get("awards") or original_movie_data["awards"],
+                "poster": request.json.get("Poster") or request.json.get("poster") or original_movie_data["poster"],
+                "imdb_id": request.json.get("imdbID") or request.json.get("imdb_id") or original_movie_data["imdb_id"],
+                "imdb_rating": request.json.get("imdbRating") or request.json.get("imdb_rating") or original_movie_data["imdb_rating"]
+            }
             sql_query = "UPDATE movies SET title=%s, year=%s, directors=%s, genre=%s, actors=%s, language=%s, awards=%s, poster=%s, imdb_id=%s, imdb_rating=%s WHERE id=%s"
             bind_data = (movie_data["title"], movie_data["year"], movie_data["directors"], movie_data["genre"], movie_data["actors"], movie_data["language"], movie_data["awards"], movie_data["poster"], movie_data["imdb_id"], movie_data["imdb_rating"], movie_id)
             conn = mysql.connect()
@@ -179,7 +223,7 @@ def delete_movie(movie_id: int):
     conn.commit()
     cursor.close()
     conn.close()
-    return {"success": f"movie {movie_id} has been deleted from the database"}, 200
+    return jsonify({"success": f"movie {movie_id} has been deleted from the database"}), 200
 
 
 # This function will return all academy awards nominees
@@ -193,7 +237,7 @@ def get_academy_awards_nominees(year: int):
             if int(row[1]) == year:
                 result.append(dict(zip(header, row)))
     if not result:
-        return {"error": f"no data found for this year ({year})"}, 404
+        return jsonify({"error": f"no data found for this year ({year})"}), 404
     return jsonify(result)
 
 
@@ -213,7 +257,7 @@ def get_academy_awards_best_picture_winner(year: int):
                 else:
                     data["movie_data"] = movie_data
                 return jsonify(data)
-    return {"error": f"no data found for best picture in this year ({year})"}, 404
+    return jsonify({"error": f"no data found for best picture in this year ({year})"}), 404
 
 
 @app.get("/api/v1/academy-awards/best-actors/<int:year>")
@@ -234,8 +278,21 @@ def get_academy_awards_best_actor_winner(year: int):
                     data["movie_data"] = movie_data
                 result.append(data)
     if not result:
-        return {"error": f"no data found for best actors in this year ({year})"}, 404
+        return jsonify({"error": f"no data found for best actors in this year ({year})"}), 404
     return jsonify(result)
+
+
+@app.route("/api/v1/movies/recommendation")
+def get_recommended_movies():
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    most_common_genre = get_the_most_common_word_in_queries()
+    cursor.execute("SELECT * FROM movies WHERE genre LIKE %s ORDER BY imdb_rating DESC LIMIT 5", ("%" + most_common_genre + "%",))
+    movies_data = cursor.fetchall()
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify(movies_data)
 
 
 if __name__ == '__main__':
