@@ -82,7 +82,7 @@ def createmovie():
         imdbID = request.form['imdbID']
         conn = mysql.connect()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        cursor.execute(''' INSERT INTO movies VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)''',(Title,Year,Director,Genre,Actors,Language,Awards,Poster,imdbID))
+        cursor.execute(''' INSERT INTO movies2 VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)''',(Title,Year,Director,Genre,Actors,Language,Awards,Poster,imdbID))
         conn.commit()
         cursor.close()
         conn.close()
@@ -100,28 +100,6 @@ def printresult():
         return results
     cursor.close
     conn.close    
-
-
-
-
-@app.get('/moviesuggestion')        # Suggest a movie in a unique way TODO
-def suggestion():
-     conn = mysql.connect()
-     cursor = conn.cursor(pymysql.cursors.DictCursor)
-     query = " SELECT year,imdb_ID FROM movies LIMIT 3 OFFSET 0"          # Selects last 3 entries in movies table  
-     cursor.execute(query)
-     results = cursor.fetchall()
-     for row in results:
-        print(results)
-        return results
-
-
-
-
-     cursor.close
-     conn.close    
-
-
 
 # This function take a json as parameter and add it to the movies table.
 def import_movie_from_omdb(response):
@@ -152,7 +130,7 @@ def import_movie_from_omdb(response):
 def is_movie_exist_in_database(imdb_id):
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies WHERE imdb_id = %s", imdb_id)
+    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM extra WHERE imdb_id = %s", imdb_id)
     movie_data = cursor.fetchone()
     if movie_data is None:
         return 0
@@ -277,6 +255,23 @@ def get_academy_awards_best_actor_winner(year: int):
     response = requests.get(omdb_url + "&t=" + movie_title).json()
     return response
 
+
+#@app.get('/moviesuggestion')        # Suggest a movie in a unique way TODO
+#def suggestion():
+#     conn = mysql.connect()
+#     cursor = conn.cursor(pymysql.cursors.DictCursor)
+#     query = ("SELECT genre, COUNT(*) AS count FROM movies GROUP BY genre HAVING COUNT(*) > 1 ORDER BY count DESC LIMIT 1")         # selects a genre that appears more than once in the vies table:
+#     cursor.execute(query)
+#     FavoriteGenre = cursor.fetchone()
+#     conn.close()    
+     
+#     if FavoriteGenre:
+#        FavoriteGenre = FavoriteGenre[0]
+
+#        suggest_url = omdb_url + "&s=" + FavoriteGenre
+#        response = requests.get(suggest_url)
+#        suggestedmovie = response.json()["Search"][0]
+        
 
 if __name__ == '__main__':
     app.run(host=HOST, port=PORT)
