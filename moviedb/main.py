@@ -190,5 +190,10 @@ def get_academy_awards_best_actor_winner(year: int):
     return jsonify(result)
 
 
+@app.get("/home")
+def home():
+    return form
+
+
 if __name__ == '__main__':
     app.run(host=HOST, port=PORT)
