@@ -391,5 +391,10 @@ def get_academy_awards_best_actor_winnerhtml(year: int):
 
     return html_table
 
+@app.get("/home")
+def home():
+    return form
+
+
 if __name__ == '__main__':
     app.run(host=HOST, port=PORT)

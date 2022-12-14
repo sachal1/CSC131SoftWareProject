@@ -1,10 +1,14 @@
+import csv
+import json
+from collections import Counter
+
+import pymysql
+import requests
+from flask import json, jsonify, request, render_template
+from json2html import *
+
 from app import app
 from config import mysql
-from collections import Counter
-import csv
-import requests
-import pymysql
-from flask import flash, json, jsonify, request, render_template
 
 HOST = "127.0.0.1"
 PORT = 8080
@@ -316,25 +320,21 @@ def get_recommended_movies():
     return jsonify(movies_data)
 
 
-@app.get("/api/v1/movies/html") # This returns all movies in database as 
-def get_all_movies_data_from_databasehtml():
-    conn = mysql.connect()
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
-    rows_count = cursor.execute("SELECT * FROM movies")  # change table name as neccesary also update html
-    if rows_count > 0:
-        movies_data = cursor.fetchall()
-    cursor.close()
-    conn.close()
-
-    if rows_count == 0:
-        return {"error": "there is no movie in the database"}, 404
-    return render_template('movies.html', movie_data=movies_data)
+@app.route("/academy-awards/<int:year>")
+def academy_awards_by_year(year: int):
+    movies_data = json.dumps(get_academy_awards_nominees(year).json)
+    html_data = json2html.convert(json=movies_data)
+    return html_data
 
 
-
-
-
-
+@app.route("/recommendation")
+def recommendation():
+    movies_data = get_recommended_movies().json
+    for movie_data in movies_data:
+        imdb_id = movie_data["imdb_id"]
+        movie_data["imdb_id"] = "https://www.imdb.com/title/" + imdb_id
+    html_data = json2html.convert(json=movies_data)
+    return html_data
 
 
 if __name__ == '__main__':
