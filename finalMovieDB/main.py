@@ -165,6 +165,24 @@ def get_movie_data_from_database(movie_id: int):
         return jsonify({"error": f"no movie found for id ({movie_id})"}), 404
     return jsonify(movie_data)
 
+@app.route("/api/v1/movieshtml/<int:movie_id>")
+def get_movie_data_from_databasehtml(movie_id: int):
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT id, title, year, directors, genre, actors, language, awards, poster, imdb_id FROM movies WHERE id = %s", movie_id)
+    movie_data = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if movie_data is None:
+        return "<html><body><p>No movie found for id ({movie_id})</p></body></html>", 404
+    else:
+        html_string = "<html><body>"
+        for key, value in movie_data.items():
+            html_string += "<p>" + key + ": " + str(value) + "</p>"
+        html_string += "</body></html>"
+        return html_string, 200    
+
 
 @app.post("/api/v1/movies")
 def create_movie():
