@@ -125,6 +125,32 @@ def get_movie_data_from_database(movie_id: int):
     else:
         return movie_data, 200
 
+@app.get('/api/v1/getmovieshtml')
+def printresult():
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    query = "SELECT * FROM movies"
+    cursor.execute(query)
+    results = cursor.fetchall()
+
+    # Generate an HTML table from the movie data
+    html = "<table>"
+    for row in results:
+        html += "<tr>"
+        for key, value in row.items():
+            html += "<td>{}</td>".format(value)
+        html += "</tr>"
+    html += "</table>"
+
+    # Add a back button and set the background color to gold
+    html += "<button onclick='window.history.back()'>Back</button>"
+    html = "<body style='background-color: gold;'>" + html + "</body>"
+
+    # Return the HTML page as the response
+    return html
+
+
+
 @app.route("/movieshtml/<int:movie_id>")
 def get_movie_data_from_databasehtml(movie_id: int):
     conn = mysql.connect()
