@@ -50,7 +50,9 @@ Sprint 5 planning: https://docs.google.com/document/d/1prlZs3zdyPSqDwyG81ts0C8ld
 
 Sprint 5 retrospective: https://docs.google.com/document/d/1iEtaKCssqCLhqiOWXSZAar4GPxqJIMmf/edit?usp=sharing&ouid=102500070643771551108&rtpof=true&sd=true
 
-RELEASE NOTES: https://docs.google.com/document/d/14RKsOFC9L82PqREGug9khGDWzZME_luP/edit?usp=sharing&ouid=102500070643771551108&rtpof=true&sd=true
+RELEASE NOTES: https://github.com/sachal1/CSC131SoftWareProject/blob/main/docs/RELEASE%20NOTES.docx
+
+REST API Documentation: https://github.com/sachal1/CSC131SoftWareProject/blob/main/docs/REST%20API%20Documentation.docx
 
 # API keys:
 OMDb: c37e6c14
